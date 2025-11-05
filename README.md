@@ -104,9 +104,9 @@ npx tsx lib/setup.ts
 ```
 
 O script irá solicitar:
-- **Firebase API Key**: `NEXT_PUBLIC_FIREBASE_API_KEY`
-- **Firebase Auth Domain**: `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-- **Firebase Project ID**: `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+- **Firebase API Key**: `FIREBASE_API_KEY`
+- **Firebase Auth Domain**: `FIREBASE_AUTH_DOMAIN`
+- **Firebase Project ID**: `FIREBASE_PROJECT_ID`
 - **Firebase Admin Project ID**: Mesmo que Project ID
 - **Firebase Admin Client Email**: Do arquivo JSON baixado (campo `client_email`)
 - **Firebase Admin Private Key**: Do arquivo JSON baixado (campo `private_key`)
@@ -152,9 +152,9 @@ Para testar pagamentos com Stripe, use os seguintes dados de cartão de teste:
 
 1. Vá para as configurações do seu projeto na Vercel
 2. Adicione todas as variáveis de ambiente:
-   - `NEXT_PUBLIC_FIREBASE_API_KEY`
-   - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-   - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+   - `FIREBASE_API_KEY`
+   - `FIREBASE_AUTH_DOMAIN`
+   - `FIREBASE_PROJECT_ID`
    - `FIREBASE_ADMIN_PROJECT_ID`
    - `FIREBASE_ADMIN_CLIENT_EMAIL`
    - `FIREBASE_ADMIN_PRIVATE_KEY`
