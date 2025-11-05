@@ -1,49 +1,32 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { signToken, verifyToken } from '@/lib/auth/session';
 
-const protectedRoutes = '/dashboard';
-
-export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const sessionCookie = request.cookies.get('session');
-  const isProtectedRoute = pathname.startsWith(protectedRoutes);
-
-  if (isProtectedRoute && !sessionCookie) {
-    return NextResponse.redirect(new URL('/sign-in', request.url));
+/**
+ * Middleware básico apenas para verificar a presença do cookie
+ * A validação real acontece server-side nas páginas/layouts
+ * 
+ * Edge Runtime não suporta Firebase Admin SDK (precisa de Node.js APIs)
+ * Por isso só verificamos se o cookie existe, não validamos aqui
+ */
+export async function middleware(req: NextRequest) {
+  const sessionCookie = req.cookies.get('session')?.value;
+  
+  // Se não há session cookie, redireciona para login
+  if (!sessionCookie) {
+    console.log('[Auth Middleware] No session cookie, redirecting to login');
+    return NextResponse.redirect(new URL('/login', req.url));
   }
 
-  let res = NextResponse.next();
-
-  if (sessionCookie && request.method === 'GET') {
-    try {
-      const parsed = await verifyToken(sessionCookie.value);
-      const expiresInOneDay = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-      res.cookies.set({
-        name: 'session',
-        value: await signToken({
-          ...parsed,
-          expires: expiresInOneDay.toISOString()
-        }),
-        httpOnly: true,
-        secure: true,
-        sameSite: 'lax',
-        expires: expiresInOneDay
-      });
-    } catch (error) {
-      console.error('Error updating session:', error);
-      res.cookies.delete('session');
-      if (isProtectedRoute) {
-        return NextResponse.redirect(new URL('/sign-in', request.url));
-      }
-    }
-  }
-
-  return res;
+  // Cookie existe, continua - validação real será feita server-side
+  return NextResponse.next();
 }
 
+/**
+ * Protege todas as rotas /dashboard
+ */
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
-  runtime: 'nodejs'
+  matcher: [
+    '/dashboard/:path*',
+  ],
 };
+
