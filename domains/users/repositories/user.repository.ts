@@ -137,10 +137,10 @@ export async function getUser(): Promise<UserDocument | null> {
 export async function getUserWithAccount(): Promise<{
   user: UserDocument;
   account: AccountDocument;
-} | null> {
+}> {
   const user = await getUser();
   if (!user) {
-    return null;
+    throw new Error('Unauthorized: User must be authenticated');
   }
 
   const account = await getAccountById(user.accountId);

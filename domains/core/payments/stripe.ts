@@ -1,8 +1,9 @@
 import Stripe from 'stripe';
 import { redirect } from 'next/navigation';
-import { getUser } from '@/domains/users/repositories/user.repository';
+import { getUser, getUserWithAccount } from '@/domains/users/repositories/user.repository';
 import { updateUser } from '@/domains/users/repositories/user.repository';
-import { getAdminDb } from '@/domains/core/database/firestore.client';
+import { Database } from '@/domains/core/database/firestore.client';
+import { updateAccount } from '@/domains/accounts/repositories/account.repository';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-04-30.basil',
@@ -15,8 +16,8 @@ export async function createCheckoutSession({
   userId?: string;
   priceId: string;
 }) {
-  const user = await getUser();
-
+  const {user, account} = await getUserWithAccount();
+  
   if (!user && !userId) {
     redirect(`/sign-up?redirect=checkout&priceId=${priceId}`);
   }
@@ -27,27 +28,9 @@ export async function createCheckoutSession({
   }
 
   // Use existing customer if available, otherwise Stripe will create a new one
-  const customerId = user?.stripeCustomerId;
+  const customerId = account?.stripeCustomerId;
 
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card'],
-    line_items: [
-      {
-        price: priceId,
-        quantity: 1,
-      },
-    ],
-    mode: 'subscription',
-    success_url: `${process.env.BASE_URL}/api/stripe/checkout?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.BASE_URL}/pricing`,
-    customer: customerId || undefined,
-    client_reference_id: userUid,
-    allow_promotion_codes: true,
-    subscription_data: {
-      trial_period_days: 14,
-    },
-  });
-
+  const session = await stripe.checkout.sessions.create();
   redirect(session.url!);
 }
 
@@ -122,13 +105,14 @@ export async function createCustomerPortalSession(userId: string, customerId: st
 export async function handleSubscriptionChange(
   subscription: Stripe.Subscription
 ) {
+  const {account} = await getUserWithAccount();
   const customerId = subscription.customer as string;
   const subscriptionId = subscription.id;
   const status = subscription.status;
 
   // Find user by stripeCustomerId
-  const adminDb = await getAdminDb();
-  const userSnapshot = await adminDb
+  const database = await Database();
+  const userSnapshot = await database
     .collection('users')
     .where('stripeCustomerId', '==', customerId)
     .limit(1)
@@ -156,14 +140,14 @@ export async function handleSubscriptionChange(
       planName = product.name?.toUpperCase() === 'PRO' ? 'PRO' : 'FREE';
     }
 
-    await updateUser(userId, {
+    await updateAccount(account.id, {
       stripeSubscriptionId: subscriptionId,
       stripeProductId: productId || undefined,
       planName,
       subscriptionStatus: status,
     });
   } else if (status === 'canceled' || status === 'unpaid') {
-    await updateUser(userId, {
+    await updateAccount(account.id, {
       stripeSubscriptionId: null,
       stripeProductId: undefined,
       planName: 'FREE',

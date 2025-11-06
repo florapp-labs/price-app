@@ -11,7 +11,7 @@ export type SubscriptionStatus =
   | null;
 
 /**
- * Account document in Firestore
+ * Account document in Firestore (raw)
  * 
  * Current state: 1:1 relationship with User (single-tenant operation)
  * Future ready: 1:N relationship (multi-tenant expansion)
@@ -33,7 +33,8 @@ export interface AccountDocument {
   stripeSubscriptionId?: string;
   stripeProductId?: string;
   
-  createdAt: Timestamp | FieldValue;
-  updatedAt: Timestamp | FieldValue;
-  deletedAt?: Timestamp | Date;
+  // Timestamps are serialized to ISO strings when passed to Client Components
+  createdAt: Timestamp | FieldValue | string | null;
+  updatedAt: Timestamp | FieldValue | string | null;
+  deletedAt?: Timestamp | Date | string | null;
 }

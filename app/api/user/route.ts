@@ -1,4 +1,4 @@
-import { getUser, createUser } from '@/domains/users/repositories/user.repository';
+import { getUser, createUser, getUserWithAccount } from '@/domains/users/repositories/user.repository';
 import { NextRequest } from 'next/server';
 import { auth as getAuth } from '@/domains/core/auth/auth.server';
 
@@ -14,6 +14,15 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
+    
+    const userWithAccount = await getUserWithAccount();
+  
+    if (!userWithAccount) {
+      throw new Error('Unauthorized: User must be authenticated');
+    }
+  
+    const { account } = userWithAccount;
+    
     const body = await request.json();
     const { idToken, name } = body;
 
@@ -48,7 +57,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Cria o documento do usuário no Firestore
-    await createUser(uid, email, { name: name || null });
+    await createUser(uid, email, account.id, { name: name || null });
 
     console.log('[API User] User document created successfully for:', uid);
     return Response.json({ success: true, uid });

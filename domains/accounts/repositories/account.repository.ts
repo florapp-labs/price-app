@@ -48,6 +48,20 @@ export async function createAccount(data: {
 }
 
 /**
+ * Serializes account data for Client Components
+ * This is required because Firestore Timestamps have `{_seconds: ..., _nanoseconds: ...}}` objects
+ * that's not serializable to JSON directly and generate errors.
+ */
+function serializeAccount(account: any): AccountDocument {
+  return {
+    ...account,
+    createdAt: account.createdAt?.toDate?.().toISOString?.() ?? null,
+    updatedAt: account.updatedAt?.toDate?.().toISOString?.() ?? null,
+    deletedAt: account.deletedAt?.toDate?.().toISOString?.() ?? null,
+  } as AccountDocument;
+}
+
+/**
  * Gets an account by ID
  * 
  * @example
@@ -66,10 +80,10 @@ export async function getAccountById(
     return null;
   }
 
-  return {
+  return serializeAccount({
     id: accountDoc.id,
     ...accountDoc.data(),
-  } as AccountDocument;
+  });
 }
 
 /**

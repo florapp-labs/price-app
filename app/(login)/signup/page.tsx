@@ -27,7 +27,7 @@ export default function SignupPage() {
       // Step 1: Create user in Firebase Auth and get uid + idToken
       const { uid, idToken } = await signUpWithPassword(email, password, name);
       
-      // Step 2: Create user document and session in backend
+      // Step 2: Create account, user and session in backend
       await axios.post('/api/auth/signup', { uid, email, name, idToken });
       
       setSuccess(true);

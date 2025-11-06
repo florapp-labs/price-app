@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/domains/core/payments/stripe';
 import Stripe from 'stripe';
-import { getUserByUid, updateUser } from '@/domains/users/repositories/user.repository';
+import { getUserByUid, getUserWithAccount, updateUser } from '@/domains/users/repositories/user.repository';
 import { setSession } from '@/domains/core/auth/session';
+import { updateAccount } from '@/domains/accounts/repositories/account.repository';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const sessionId = searchParams.get('session_id');
+
+  const userWithAccount = await getUserWithAccount();
+
+  if (!userWithAccount) {
+    throw new Error('Unauthorized: User must be authenticated');
+  }
+
+  const { account } = userWithAccount;
 
   if (!sessionId) {
     return NextResponse.redirect(new URL('/pricing', request.url));
@@ -63,8 +72,8 @@ export async function GET(request: NextRequest) {
     const planName: 'FREE' | 'PRO' =
       product.name?.toUpperCase() === 'PRO' ? 'PRO' : 'FREE';
 
-    // Atualiza o usuário com as informações da assinatura
-    await updateUser(userId, {
+    // Atualiza a account com as informações da assinatura
+    await updateAccount(account.id, {
       stripeCustomerId: customerId,
       stripeSubscriptionId: subscriptionId,
       stripeProductId: productId,

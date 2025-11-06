@@ -10,7 +10,7 @@ export default function LogoutPage() {
   useEffect(() => {
     async function logout() {
       try {
-        await axios.post('/api/auth/logout');
+        await axios.delete('/api/auth/logout');
         router.push('/login');
       } catch (error) {
         console.error('Logout error:', error);

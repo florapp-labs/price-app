@@ -94,8 +94,8 @@ async function getFirebaseCredentials() {
   console.log('');
 
   const apiKey = await question('Enter your FIREBASE_API_KEY: ');
-  const authDomain = await question('Enter your FIREBASE_AUTH_DOMAIN: ');
-  const projectId = await question('Enter your FIREBASE_PROJECT_ID: ');
+  const authDomain = await question('Enter your NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ');
+  const projectId = await question('Enter your NEXT_PUBLIC_FIREBASE_PROJECT_ID: ');
 
   console.log('');
   console.log('Step 3: Setting up Firebase Admin SDK');
@@ -187,9 +187,9 @@ async function main() {
   const BASE_URL = 'http://localhost:3000';
 
   await writeEnvFile({
-    FIREBASE_API_KEY: apiKey,
-    FIREBASE_AUTH_DOMAIN: authDomain,
-    FIREBASE_PROJECT_ID: projectId,
+    NEXT_PUBLIC_FIREBASE_API_KEY: apiKey,
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: authDomain,
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID: projectId,
     FIREBASE_ADMIN_PROJECT_ID: adminProjectId,
     FIREBASE_ADMIN_CLIENT_EMAIL: adminClientEmail,
     FIREBASE_ADMIN_PRIVATE_KEY: adminPrivateKey.replace(/\\n/g, '\n'),

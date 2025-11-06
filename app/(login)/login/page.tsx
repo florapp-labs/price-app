@@ -26,7 +26,7 @@ export default function LoginPage() {
       const idToken = await signInWithPassword(email, password);
       
       // Step 2: Send idToken to backend to create session
-      await axios.post('/api/auth/session', { idToken });
+      await axios.post('/api/auth/login', { idToken });
       
       router.push('/dashboard');
     } catch (err: any) {

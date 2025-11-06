@@ -8,6 +8,9 @@ export type SubscriptionStatus =
   | 'canceled'
   | 'unpaid'
   | 'past_due'
+  | 'incomplete'
+  | 'incomplete_expired'
+  | 'paused'
   | null;
 
 /**
@@ -15,6 +18,8 @@ export type SubscriptionStatus =
  * 
  * Current: 1:1 with User (single-tenant operation)
  * Future: 1:N with Users (multi-tenant ready)
+ * 
+ * Note: Timestamps are serialized to ISO strings when passed to Client Components
  */
 export interface AccountDocument {
   id: string;
@@ -23,18 +28,20 @@ export interface AccountDocument {
   // Subscription data
   planName: Plan;
   subscriptionStatus: SubscriptionStatus;
-  stripeCustomerId?: string;
-  stripeSubscriptionId?: string;
-  stripeProductId?: string;
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
+  stripeProductId?: string | null;
   
-  createdAt: Timestamp | Date | FieldValue;
-  updatedAt: Timestamp | Date | FieldValue;
-  deletedAt?: Timestamp | Date;
+  createdAt: Timestamp | Date | FieldValue | string | null;
+  updatedAt: Timestamp | Date | FieldValue | string | null;
+  deletedAt?: Timestamp | Date | string | null;
 }
 
 /**
  * User document in Firestore
  * Each user belongs to ONE account (accountId)
+ * 
+ * Note: Timestamps are serialized to ISO strings when passed to Client Components
  */
 export interface UserDocument {
   uid: string;
@@ -43,8 +50,8 @@ export interface UserDocument {
   
   accountId: string; // ← Link to Account (1:1 initially, 1:N ready)
   
-  createdAt: Timestamp | Date | FieldValue;
-  updatedAt: Timestamp | Date | FieldValue;
+  createdAt: Timestamp | Date | FieldValue | string | null;
+  updatedAt: Timestamp | Date | FieldValue | string | null;
   deletedAt?: Timestamp | Date;
 }
 

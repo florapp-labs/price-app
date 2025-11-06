@@ -1,6 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { setSession } from '@/domains/core/auth/session';
 import { clearSession } from '@/domains/core/auth/session';
 
+/**
+ * Logout Route - DELETE /api/auth/session
+ * Deletes the current user session.
+ * @returns Deletion confirmation
+ */
 export async function POST() {
   try {
     await clearSession();

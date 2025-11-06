@@ -21,8 +21,16 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
 
-  const data = await getUserWithAccount();
-  console.log('Layout user:', data?.user, 'account:', data?.account);
+  let user = null;
+  let account = null;
+
+  try {
+    const user_account = await getUserWithAccount();
+    user = user_account.user;
+    account = user_account.account;
+  } catch (error) {
+    // No user logged in
+  }
 
   return (
     <html
@@ -30,7 +38,7 @@ export default async function RootLayout({
       className={`bg-white dark:bg-gray-950 text-black dark:text-white ${manrope.className}`}
     >
       <body className="min-h-[100dvh] bg-gray-50">
-        <AuthProvider user={data?.user || null} account={data?.account || null}>
+        <AuthProvider user={user} account={account}>
           {children}
         </AuthProvider>
       </body>
