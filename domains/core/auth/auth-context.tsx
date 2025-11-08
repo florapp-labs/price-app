@@ -1,23 +1,30 @@
 "use client";
 
-import React, { createContext, useContext } from 'react';
+import React, { createContext } from 'react';
+import { AuthState } from './auth.types';
 import { UserDocument, AccountDocument } from '@/domains/core/database/types';
 
-export interface AuthState {
-  user: UserDocument | null;
-  account: AccountDocument | null;
-}
-
+/**
+ * React Context for authentication state
+ * Provides user and account information throughout the app
+ */
 export const AuthContext = createContext<AuthState | undefined>(undefined);
 
-export function useAuth(): AuthState {
-  const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return ctx;
-}
-
+/**
+ * Authentication Provider Component
+ * Wraps the app to provide auth state to all children
+ * 
+ * @param user - Authenticated user document or null
+ * @param account - User's account document or null
+ * @param children - Child components
+ * 
+ * @example
+ * ```tsx
+ * <AuthProvider user={user} account={account}>
+ *   <App />
+ * </AuthProvider>
+ * ```
+ */
 export const AuthProvider: React.FC<{ 
   user: UserDocument | null; 
   account: AccountDocument | null;

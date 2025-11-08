@@ -2,12 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { auth as getAuth } from '@/domains/core/auth/auth.server';
-
-export type SessionData = {
-  uid: string;
-  email: string;
-  expires: string;
-};
+import { SessionData } from './auth.types';
 
 /**
  * Obtém a sessão atual do cookie
@@ -30,6 +25,9 @@ export async function getSession(): Promise<SessionData | null> {
       uid: decodedToken.uid,
       email: decodedToken.email ?? '',
       expires: new Date(decodedToken.exp * 1000).toISOString(),
+      // Custom claims (avoid Firestore queries for accountId and planName)
+      accountId: decodedToken.accountId as string | undefined,
+      planName: decodedToken.planName as 'FREE' | 'PRO' | undefined,
     };
   } catch (error: any) {
     console.error('[Session] Failed to verify session cookie:', error.code || error.message);

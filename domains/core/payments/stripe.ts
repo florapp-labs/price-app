@@ -4,6 +4,7 @@ import { getUser, getUserWithAccount } from '@/domains/users/repositories/user.r
 import { updateUser } from '@/domains/users/repositories/user.repository';
 import { Database } from '@/domains/core/database/firestore.client';
 import { updateAccount } from '@/domains/accounts/repositories/account.repository';
+import { updatePlanClaim } from '@/domains/core/auth/auth.claims';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-04-30.basil',
@@ -146,6 +147,9 @@ export async function handleSubscriptionChange(
       planName,
       subscriptionStatus: status,
     });
+
+    // Update custom claims so planName is available in token
+    await updatePlanClaim(userId, planName);
   } else if (status === 'canceled' || status === 'unpaid') {
     await updateAccount(account.id, {
       stripeSubscriptionId: null,
@@ -153,6 +157,9 @@ export async function handleSubscriptionChange(
       planName: 'FREE',
       subscriptionStatus: status,
     });
+
+    // Update custom claims to FREE when subscription is canceled
+    await updatePlanClaim(userId, 'FREE');
   }
 }
 

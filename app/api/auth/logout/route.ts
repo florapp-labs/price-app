@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { setSession } from '@/domains/core/auth/session';
-import { clearSession } from '@/domains/core/auth/session';
+import { setSession } from '@/domains/core/auth/auth.session';
+import { clearSession } from '@/domains/core/auth/auth.session';
 
 /**
  * Logout Route - DELETE /api/auth/session

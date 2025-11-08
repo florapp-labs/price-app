@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserByEmail, createUser } from '@/domains/users/repositories/user.repository';
 import { createAccount } from '@/domains/accounts/repositories/account.repository';
-import { setSession } from '@/domains/core/auth/session';
+import { setSession } from '@/domains/core/auth/auth.session';
+import { setUserClaims } from '@/domains/core/auth/auth.claims';
 
 /**
  * Signup API route to create a new user, account and session.
@@ -42,7 +43,13 @@ export async function POST(request: NextRequest) {
 
     console.log('[Signup] User created:', uid, 'linked to account:', account.id);
 
-    // 3. Create session cookie to grant user access
+    // 3. Set custom claims (accountId and planName in token)
+    await setUserClaims(uid, {
+      accountId: account.id,
+      planName: account.planName,
+    });
+
+    // 4. Create session cookie to grant user access
     await setSession(idToken);
 
     return NextResponse.json({ 

@@ -51,7 +51,7 @@ export async function signInWithPassword(email: string, password: string): Promi
  * Sign up with email and password
  * Returns uid and idToken
  */
-export async function signUpWithPassword(email: string, password: string, displayName?: string): Promise<{ uid: string; idToken: string }> {
+export async function signUpWithPassword(email: string, password: string, displayName?: string): Promise<import('./auth.types').SignUpResult> {
   const { auth } = initializeFirebaseClient();
   const userCred = await createUserWithEmailAndPassword(auth, email, password);
   

@@ -2,7 +2,7 @@
 
 import { UserDocument, AccountDocument } from '@/domains/core/database/types';
 import { FieldValue } from 'firebase-admin/firestore';
-import { getSession } from '@/domains/core/auth/session';
+import { getSession } from '@/domains/core/auth/auth.session';
 import { Database } from '@/domains/core/database/firestore.client';
 import { getAccountById } from '@/domains/accounts/repositories/account.repository';
 

@@ -2,12 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import axios from 'axios';
-import { signUpWithPassword } from '@/domains/core/auth/firebase-auth.client';
+import { signUpWithPassword } from '@/domains/core/auth/auth.client';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -54,8 +51,8 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <div>
-            <Label htmlFor="name">Name</Label>
-            <Input
+            <label htmlFor="name">Name</label>
+            <input
               id="name"
               type="text"
               required
@@ -67,8 +64,8 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
+            <label htmlFor="email">Email</label>
+            <input
               id="email"
               type="email"
               required
@@ -80,8 +77,8 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
+            <label htmlFor="password">Password</label>
+            <input
               id="password"
               type="password"
               required
@@ -106,9 +103,9 @@ export default function SignupPage() {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Creating account...' : 'Sign up'}
-          </Button>
+          </button>
         </form>
       </div>
     </div>

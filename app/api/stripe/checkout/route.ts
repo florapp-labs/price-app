@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/domains/core/payments/stripe';
 import Stripe from 'stripe';
 import { getUserByUid, getUserWithAccount, updateUser } from '@/domains/users/repositories/user.repository';
-import { setSession } from '@/domains/core/auth/session';
+import { setSession } from '@/domains/core/auth/auth.session';
 import { updateAccount } from '@/domains/accounts/repositories/account.repository';
 
 export async function GET(request: NextRequest) {
