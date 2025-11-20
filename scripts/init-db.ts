@@ -6,10 +6,9 @@ async function initializeDatabase() {
     const testUser = await createUser(
       'test-user-1',  // uid
       'test@example.com', // email
+      'account-1', // accountId
       {
-        name: 'Usuário Teste',
-        planName: 'FREE',
-        subscriptionStatus: null,
+        name: 'Usuário Teste'
       }
     );
 

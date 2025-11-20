@@ -12,7 +12,7 @@
  */
 
 // Types
-export type { AuthState, AuthContextValue, SessionData, AuthCredentials, SignUpResult, WithAuthProps } from './auth.types';
+export type { AuthState, SessionData, AuthCredentials, SignUpResult, WithAuthProps } from './auth.types';
 
 // Client-side authentication
 export { signInWithPassword, signUpWithPassword } from './auth.client';

@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { createCheckoutSession, createCustomerPortalSession } from './stripe';
-import { getUser } from '@/domains/users/repositories/user.repository';
+import { getUser, getUserWithAccount } from '@/domains/users/repositories/user.repository';
 
 export async function checkoutAction(formData: FormData) {
   const priceId = formData.get('priceId') as string;
@@ -16,16 +16,16 @@ export async function checkoutAction(formData: FormData) {
 }
 
 export async function customerPortalAction() {
-  const user = await getUser();
+  const {account} = await getUserWithAccount();
   
-  if (!user?.stripeCustomerId || !user.stripeProductId) {
+  if (!account?.stripeCustomerId || !account.stripeProductId) {
     redirect('/pricing');
   }
 
   const portalSession = await createCustomerPortalSession(
-    user.uid,
-    user.stripeCustomerId,
-    user.stripeProductId
+    account.id,
+    account.stripeCustomerId,
+    account.stripeProductId
   );
   redirect(portalSession.url);
 }
