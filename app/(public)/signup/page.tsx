@@ -4,13 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
-import { signInWithPassword } from '@/domains/core/auth/auth.client';
+import { signUpWithPassword } from '@/domains/core/auth/auth.client';
+import { useAuth } from '@/domains/core/auth';
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -19,15 +22,16 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Step 1: Authenticate with Firebase Auth and get idToken
-      const idToken = await signInWithPassword(email, password);
+      // Step 1: Create user in Firebase Auth and get uid + idToken
+      const { uid, idToken } = await signUpWithPassword(email, password, name);
       
-      // Step 2: Send idToken to backend to create session
-      await axios.post('/api/auth/login', { idToken });
+      // Step 2: Create account, user and session in backend
+  await axios.post('/api/auth/signup', { uid, email, name, idToken });
       
-      router.push('/dashboard');
+  setSuccess(true);
+  window.location.href = '/dashboard';
     } catch (err: any) {
-      setError(err.message || 'Failed to login');
+      setError(err.message || 'Failed to create account');
     } finally {
       setLoading(false);
     }
@@ -37,16 +41,29 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="w-full max-w-md space-y-8 px-4">
         <div className="text-center">
-          <h2 className="text-3xl font-bold">Login</h2>
+          <h2 className="text-3xl font-bold">Sign up</h2>
           <p className="mt-2 text-sm text-gray-600">
-            Don't have an account?{' '}
-            <Link href="/signup" className="text-blue-600 hover:underline">
-              Sign up
+            Already have an account?{' '}
+            <Link href="/login" className="text-blue-600 hover:underline">
+              Login
             </Link>
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          <div>
+            <label htmlFor="name">Name</label>
+            <input
+              id="name"
+              type="text"
+              required
+              className="mt-1"
+              placeholder="Your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+
           <div>
             <label htmlFor="email">Email</label>
             <input
@@ -72,6 +89,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+            <p className="mt-1 text-xs text-gray-500">At least 8 characters</p>
           </div>
 
           {error && (
@@ -80,8 +98,14 @@ export default function LoginPage() {
             </div>
           )}
 
+          {success && (
+            <div className="rounded-md bg-green-50 p-4 text-sm text-green-600">
+              Account created! Redirecting to login...
+            </div>
+          )}
+
           <button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? 'Creating account...' : 'Sign up'}
           </button>
         </form>
       </div>

@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import { useAuth } from '@/domains/core/auth';
 
 export default function LogoutPage() {
   const router = useRouter();
@@ -11,10 +12,12 @@ export default function LogoutPage() {
     async function logout() {
       try {
         await axios.post('/api/auth/logout');
-        router.push('/login');
+        
+        // redirect with window.location to guarantee full reload
+        window.location.href = '/'
       } catch (error) {
         console.error('Logout error:', error);
-        router.push('/login');
+        window.location.href = '/login'
       }
     }
     logout();

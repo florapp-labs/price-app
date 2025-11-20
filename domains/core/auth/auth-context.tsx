@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext } from 'react';
+import React, { createContext, useCallback, useState } from 'react';
 import { AuthState } from './auth.types';
 import { UserDocument, AccountDocument } from '@/domains/core/database/types';
 
@@ -30,8 +30,13 @@ export const AuthProvider: React.FC<{
   account: AccountDocument | null;
   children: React.ReactNode;
 }> = ({ user, account, children }) => {
+
   return (
-    <AuthContext.Provider value={{ user, account }}>
+    <AuthContext.Provider value={{
+      user,
+      account,
+      isAuthenticated: Boolean(user?.uid)
+    }}>
       {children}
     </AuthContext.Provider>
   );

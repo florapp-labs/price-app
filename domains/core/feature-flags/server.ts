@@ -30,7 +30,6 @@ function _hasQuota(feature: Feature, plan: Plan | null, currentUsage: number): b
  */
 const _getPlan = cache(async (): Promise<Plan> => {
   const session = await getSession();
-  console.log('[Feature Flags] Current session:', session);
   // If claims are missing (e.g., user just signed up and hasn't refreshed token),
   // fall back to a safe default. This avoids DB queries from this layer.
   return (session?.planName ?? 'FREE') as Plan;
@@ -116,4 +115,12 @@ export async function remainingQuotaAvailable(feature: Feature): Promise<number>
   if (!plan) return 0;
 
   return PLAN_CONFIG[plan]?.quotas[feature] ?? 0;
+}
+
+/**
+ * Return the raw configured quota limit for a feature (alias for remainingQuotaAvailable without usage computation)
+ * Provided to align with previous API usage (getQuota) in some pages.
+ */
+export async function getQuota(feature: Feature): Promise<number> {
+  return remainingQuotaAvailable(feature);
 }

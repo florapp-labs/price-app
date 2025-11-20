@@ -7,6 +7,8 @@ import { UserDocument, AccountDocument } from '@/domains/core/database/types';
 export interface AuthState {
   user: UserDocument | null;
   account: AccountDocument | null;
+  /** True when a valid user is present */
+  isAuthenticated: boolean;
 }
 
 /**
