@@ -9,9 +9,9 @@ import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
 
 const navItems: { href: string; label: string }[] = [
-  { href: "/", label: "Home" },
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/pricing", label: "Pricing" }
+  { href: "#home", label: "Home" },
+  { href: "#features", label: "Recursos" },
+  { href: "#how-it-works", label: "Como Funciona" }
 ];
 
 export function Navbar() {
@@ -31,18 +31,23 @@ export function Navbar() {
           </Link>
           <nav className="hidden md:flex items-center gap-2">
             {navItems.map((item) => (
-              <Link
+              <a
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  pathname === item.href
-                    ? "bg-[hsl(var(--primary))/0.1] text-[hsl(var(--primary))]"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  "rounded-md px-3 py-2 text-sm font-medium transition-colors cursor-pointer",
+                  "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const target = document.querySelector(item.href);
+                  if (target) {
+                    target.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }
+                }}
               >
                 {item.label}
-              </Link>
+              </a>
             ))}
           </nav>
         </div>
@@ -55,7 +60,16 @@ export function Navbar() {
               <Link href="/login">Login</Link>
             </Button>
             <Button asChild>
-              <Link href="/signup">Criar conta</Link>
+              <Link
+                href="#signup"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const target = document.querySelector("#signup");
+                  if (target) {
+                    target.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }
+                }}
+              >Criar conta</Link>
             </Button>
           </div>
         </div>
@@ -64,18 +78,24 @@ export function Navbar() {
         <div className="md:hidden border-b bg-background">
           <Container className="flex flex-col py-2">
             {navItems.map((item) => (
-              <Link
+              <a
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  pathname === item.href
-                    ? "bg-[hsl(var(--primary))/0.1] text-[hsl(var(--primary))]"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  "rounded-md px-3 py-2 text-sm font-medium transition-colors cursor-pointer",
+                  "text-muted-foreground hover:text-foreground hover:bg-muted"
                 )}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const target = document.querySelector(item.href);
+                  if (target) {
+                    target.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }
+                  setOpen(false);
+                }}
               >
                 {item.label}
-              </Link>
+              </a>
             ))}
             <div className="mt-2 flex items-center gap-2">
               <Button variant="outline" className="flex-1" asChild>

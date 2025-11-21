@@ -10,7 +10,7 @@ interface SignupFormHeaderProps {
 function SignupFormHeader({ 
   title = 'Criar conta gratuita', 
   description = 'Preencha os dados abaixo para começar' 
-}: HeaderProps) {
+}: SignupFormHeaderProps) {
   return (
     <CardHeader className="space-y-1">
       <CardTitle className="text-2xl">{title}</CardTitle>
