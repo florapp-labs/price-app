@@ -53,7 +53,20 @@ export async function signInWithPassword(email: string, password: string): Promi
  */
 export async function signUpWithPassword(email: string, password: string, displayName?: string): Promise<import('./auth.types').SignUpResult> {
   const { auth } = initializeFirebaseClient();
-  const userCred = await createUserWithEmailAndPassword(auth, email, password);
+  let userCred;
+  try {
+    userCred = await createUserWithEmailAndPassword(auth, email, password);
+  } catch (error: any) {
+    if (error.code === 'auth/email-already-in-use') {
+      throw new Error('Email já está em uso.');
+    } else {
+      throw new Error('Erro ao criar conta: ' + error.message);
+    }
+  }
+
+  if (!userCred.user) {
+    throw new Error('Falha ao criar conta.');
+  }
   
   // Update display name if provided
   if (displayName && userCred.user) {
