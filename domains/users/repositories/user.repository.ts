@@ -20,10 +20,12 @@ function serializeUser(user: any) {
  * Gets a user by UID
  */
 export async function getUserByUid(uid: string): Promise<UserDocument | null> {
+  console.log(`[User] Fetching user by UID: ${uid}`);
   const db = await Database();
   const userDoc = await db.collection(USERS_COLLECTION).doc(uid).get();
   
   if (!userDoc.exists) {
+    console.error(`[User] No user found with UID: ${uid}`);
     return null;
   }
 
@@ -112,6 +114,7 @@ export async function getUserByEmail(
 export async function getUser(): Promise<UserDocument | null> {
   const session = await getSession();
   if (!session) {
+    console.error('[User] No active session found');
     return null;
   }
 

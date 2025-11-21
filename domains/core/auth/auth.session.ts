@@ -12,14 +12,19 @@ export async function getSession(): Promise<SessionData | null> {
   const auth = await getAuth();
   const cook = await cookies();
   const sessionCookie = cook.get('session');
+
+  console.log('[Session] Retrieving session from cookie');
   
   if (!sessionCookie?.value) {
+    console.error('[Session] No session cookie found');
     return null;
   }
 
   try {
     // checkRevoked: true garante que tokens revogados sejam rejeitados
     const decodedToken = await auth.verifySessionCookie(sessionCookie.value, true);
+
+    console.log('[Session] Session cookie verified successfully');
 
     return {
       uid: decodedToken.uid,

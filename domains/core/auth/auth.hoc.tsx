@@ -27,6 +27,7 @@ export function withAuth<P extends { user: UserDocument }>(
   Component: React.ComponentType<P>
 ) {
   return async function ProtectedPage(props: Omit<P, 'user'>) {
+    console.log('[withAuth] Checking for authenticated user');
     const user = await getUser();
     
     if (!user) {
