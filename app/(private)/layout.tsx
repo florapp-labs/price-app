@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import '../globals.css';
 import type { Metadata, Viewport } from 'next';
 import { redirect } from 'next/navigation';
