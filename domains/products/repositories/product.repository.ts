@@ -9,10 +9,22 @@
 
 import { getUserWithAccount } from '@/domains/users/repositories/user.repository';
 import { Database } from '@/domains/core/database/firestore.client';
-import { FieldValue } from 'firebase-admin/firestore';
+import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import type { Product } from '../types/product.types';
 
 const PRODUCTS_COLLECTION = 'products';
+
+/**
+ * Helper: Serialize Firestore Timestamp to plain object
+ * Converts Timestamp objects to Date strings for client serialization
+ */
+function serializeProduct(data: any): Product {
+  return {
+    ...data,
+    createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : data.createdAt,
+    updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
+  } as Product;
+}
 
 /**
  * Creates a new product for the authenticated user's account
@@ -53,39 +65,93 @@ export async function createProduct(
   } as Product;
 }
 
+export interface ProductsListResult {
+  products: Product[];
+  hasMore: boolean;
+  nextCursor?: string;
+  total: number;
+}
+
 /**
- * Gets all products for the authenticated user's account
+ * Gets products for the authenticated user's account with cursor-based pagination
+ * 
+ * @param pageSize - Number of products per page (default: 10)
+ * @param cursor - Cursor for pagination (product ID to start after)
  * 
  * @example
- * const products = await getProducts();
- * // Returns only products where accountId = current user's account
+ * const result = await getProducts(10);
+ * // { products: [...], hasMore: true, nextCursor: 'product-123', total: 25 }
+ * 
+ * const nextPage = await getProducts(10, result.nextCursor);
+ * // Returns next 10 products
  */
-export async function getProducts(): Promise<Product[]> {
+export async function getProducts(
+  pageSize: number = 10,
+  cursor?: string
+): Promise<ProductsListResult> {
   // 1. Get authenticated user and account
   const userAccount = await getUserWithAccount();
   if (!userAccount) {
-    return [];
+    return { products: [], hasMore: false, total: 0 };
   }
 
   const { account } = userAccount;
 
   const db = await Database();
 
-  // 2. Query filtered by accountId
-  const snapshot = await db
+  // 2. Count total products for the account
+  const countSnapshot = await db
     .collection(PRODUCTS_COLLECTION)
-    .where('accountId', '==', account.id) // ← Only account's products
-    .orderBy('createdAt', 'desc')
+    .where('accountId', '==', account.id)
+    .count()
     .get();
+  
+  const total = countSnapshot.data().count;
 
-  if (snapshot.empty) {
-    return [];
+  // 3. Build query with pagination
+  let query = db
+    .collection(PRODUCTS_COLLECTION)
+    .where('accountId', '==', account.id)
+    .orderBy('createdAt', 'desc')
+    .limit(pageSize + 1); // Fetch one extra to check if there are more
+
+  // Apply cursor if provided
+  if (cursor) {
+    const cursorDoc = await db.collection(PRODUCTS_COLLECTION).doc(cursor).get();
+    if (cursorDoc.exists) {
+      query = query.startAfter(cursorDoc);
+    }
   }
 
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Product[];
+  const snapshot = await query.get();
+  const products: Product[] = [];
+
+  snapshot.forEach((doc) => {
+    products.push(serializeProduct({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  });
+
+  // Check if there are more results
+  const hasMore = products.length > pageSize;
+  
+  // Remove the extra item if we have more results
+  if (hasMore) {
+    products.pop();
+  }
+
+  // Get the last product ID as the next cursor
+  const nextCursor = hasMore && products.length > 0 
+    ? products[products.length - 1].id 
+    : undefined;
+
+  return {
+    products,
+    hasMore,
+    nextCursor,
+    total,
+  };
 }
 
 /**
@@ -126,10 +192,10 @@ export async function getProductById(
     return null;
   }
 
-  return {
+  return serializeProduct({
     ...product,
     id: productDoc.id,
-  };
+  });
 }
 
 /**
@@ -239,8 +305,8 @@ export async function getProductsNeedingRecalculation(): Promise<Product[]> {
     .where('needsRecalculation', '==', true)
     .get();
 
-  return snapshot.docs.map((doc) => ({
+  return snapshot.docs.map((doc) => serializeProduct({
     id: doc.id,
     ...doc.data(),
-  })) as Product[];
+  }));
 }

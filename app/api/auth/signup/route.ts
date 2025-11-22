@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserByEmail, createUser } from '@/domains/users/repositories/user.repository';
 import { createAccount } from '@/domains/accounts/repositories/account.repository';
+import { createSettings } from '@/domains/settings/repositories/settings.repository';
 import { setSession } from '@/domains/core/auth/auth.session';
 import { setUserClaims } from '@/domains/core/auth/auth.claims';
 
@@ -38,18 +39,23 @@ export async function POST(request: NextRequest) {
 
     console.log('[Signup] Account created:', account.id);
 
-    // 2. Create User linked to Account
+    // 2. Create default Settings for the Account (1:1 relationship)
+    await createSettings(account.id);
+
+    console.log('[Signup] Settings created for account:', account.id);
+
+    // 3. Create User linked to Account
     await createUser(uid, email, account.id, { name });
 
     console.log('[Signup] User created:', uid, 'linked to account:', account.id);
 
-    // 3. Set custom claims (accountId and planName in token)
+    // 4. Set custom claims (accountId and planName in token)
     await setUserClaims(uid, {
       accountId: account.id,
       planName: account.planName,
     });
 
-    // 4. Create session cookie to grant user access
+    // 5. Create session cookie to grant user access
     await setSession(idToken);
 
     return NextResponse.json({ 

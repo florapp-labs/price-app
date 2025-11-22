@@ -1,13 +1,17 @@
 import { Timestamp, FieldValue } from 'firebase-admin/firestore';
 
 /**
- * Ingredient used in a product
+ * Supply (material) used in a product
  */
-export interface Ingredient {
-  materialId: string;
+export interface ProductSupply {
+  supplyId: string;
   quantity: number;
-  unit: string;
 }
+
+/**
+ * @deprecated Use ProductSupply instead
+ */
+export type Ingredient = ProductSupply;
 
 /**
  * Product document in Firestore
@@ -20,14 +24,15 @@ export interface Product {
   id: string;
   name: string;
   description?: string;
-  price: number;
+  price: number; // Recommended selling price (auto-calculated)
+  currentPrice?: number; // Current user-defined selling price
   
   accountId: string; // ← Account owner (changed from 'owner: uid')
   
-  ingredients: Ingredient[];
+  supplies: ProductSupply[];
   needsRecalculation?: boolean;
-  createdAt: Timestamp | FieldValue;
-  updatedAt: Timestamp | FieldValue;
+  createdAt: Timestamp | FieldValue | string;
+  updatedAt: Timestamp | FieldValue | string;
 }
 
 

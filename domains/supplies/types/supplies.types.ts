@@ -7,17 +7,16 @@ import { Timestamp, FieldValue } from 'firebase-admin/firestore';
  * Current: 1:1 Account-User (user's materials)
  * Future: 1:N Account-Users (shared materials in team)
  */
-export interface MaterialDocument {
+export interface SupplyDocument {
   id: string;
+  accountId: string; // ← Account owner (changed from 'owner: uid')
+  
   name: string;
   description?: string;
   cost: number;
-  unit: string; // e.g., 'unidade', 'kg', 'metro'
-  
-  accountId: string; // ← Account owner (changed from 'owner: uid')
-  
-  createdAt: Timestamp | FieldValue;
-  updatedAt: Timestamp | FieldValue;
+    
+  createdAt: Timestamp | FieldValue | string;
+  updatedAt: Timestamp | FieldValue | string;
 }
 
 
